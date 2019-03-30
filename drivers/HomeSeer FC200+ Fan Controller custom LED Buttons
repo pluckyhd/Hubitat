@@ -16,7 +16,7 @@
  *	Date: 2018-18-Oct
  *
  *	Changelog:
- *    5.0 4/20/2019 custom driver to fire led changes as buttons example: btn 110 = ledstatus of 110
+ *    4.1 3/29/2019 fixed off/on not working digital, fixed compatibility of slider
  *    4.0 3/29/2019 rules didn't allow double digit buttons so changed numbers accordingly.
  *    3.0 3/29/2019 fixed blink of leds and moves multi push/hold to buttons for better integration in rules.
  *	  2.0 3/26/2019 Initial commit of Hubitat port by @PluckyHD
@@ -41,7 +41,7 @@
 
 metadata {
     definition(name: "HomeSeer FC200+ Fan Controller custom LED Buttons", namespace: "pluckyHD", author: "@pluckyHD") {
-        capability "Switch Level"
+        capability "SwitchLevel"
         capability "Actuator"
         capability "Switch"
         capability "Polling"
@@ -599,7 +599,7 @@ def getColor(color)
 
 def push(String buttonType, btnNum) {
 	def cmds = []
-	
+	def needsCmds = false
 	def statValue = ""
 	if (btnNum > 100)
 	{
@@ -610,6 +610,7 @@ def push(String buttonType, btnNum) {
 				log.debug "stats $led $color $blink"
 				cmds += setStatusLed(led, color, blink,true)
 				log.debug "cmds to fire = $cmds"
+				needsCmds = true
 				colorName = getColor(color)
 	
 		statValue = "LED # $led Color: $colorName Blink: ${blink==0? "Off": "ON"}"
@@ -683,7 +684,8 @@ def push(String buttonType, btnNum) {
 
     sendEvent(name: "pushed", value: btnNum,data: [buttonNumber: btnNum], descriptionText: "$device.displayName button $btnNum was pushed",  type: "$buttonType", isStateChange: true)
 	sendEvent(name: "btnStat", value: statValue, isStateChange: true)
-	delayBetween(cmds,500)
+	if(needsCmds){
+		delayBetween(cmds,500)}
 }
 
 
