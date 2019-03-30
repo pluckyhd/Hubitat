@@ -16,6 +16,7 @@
  *	Date: 2018-18-Oct
  *
  *	Changelog:
+ *    4.0 3/29/2019 rules didn't allow double digit buttons so changed numbers accordingly.
  *    3.0 3/29/2019 fixed blink of leds and moves multi push/hold to buttons for better integration in rules.
  *	  2.0 3/26/2019 Initial commit of Hubitat port by @PluckyHD
  *    1.0 Oct 2018 Initial Version based on WD200+
@@ -23,18 +24,18 @@
  *   Button Mappings:
  *
  *   ACTION          BUTTON#    BUTTON ACTION
- *   Double-Tap Up     1,3       pressed
- *   Double-Tap Down   2,3       pressed
- *   Triple-Tap Up     1,4        pressed
- *   Triple-Tap Down   2,4        pressed
- *   Hold Up           1,2 	    pressed
- *   Hold Down         2,2 	    pressed
- *   Single-Tap Up     1,1        pressed
- *   Single-Tap Down   2,1        pressed
- *   4 taps up         1,5        pressed
- *   4 taps down       2,5       pressed
- *   5 taps up         1,6       pressed
- *   5 taps down       2,6      pressed
+ *   Double-Tap Up     1     	   pressed
+ *   Double-Tap Down   2    	   pressed
+ *   Triple-Tap Up     3    	   pressed
+ *   Triple-Tap Down   4    	   pressed
+ *   Hold Up           5 		   pressed
+ *   Hold Down         6 		   pressed
+ *   Single-Tap Up     7    	   pressed
+ *   Single-Tap Down   8    	   pressed
+ *   4 taps up         9    	   pressed
+ *   4 taps down       10    	   pressed
+ *   5 taps up         11    	   pressed
+ *   5 taps down       12    	   pressed
  **/
 
 metadata {
@@ -59,7 +60,7 @@ metadata {
 		command "setLEDModeToStatus"
         command "setStatusLed", ["integer","integer","integer"]
         command "setBlinkDurationMilliseconds" ,["integer"]
-		command "push",["integer","integer"]
+		command "push",["integer"]
 
 
         fingerprint mfr: "000C", prod: "0203", model: "0001"
@@ -194,7 +195,7 @@ def zwaveEvent(hubitat.zwave.Command cmd) {
 }
 
 def on() {
-    push("digital",1,0)
+    push("digital",7)
     delayBetween([
         zwave.basicV1.basicSet(value: 0xFF).format(),
         zwave.switchMultilevelV1.switchMultilevelGet().format()
@@ -202,7 +203,7 @@ def on() {
 }
 
 def off() {
-    push("digital",2,0)
+    push("digital",8)
     delayBetween([
         zwave.basicV1.basicSet(value: 0x00).format(),
         zwave.switchMultilevelV1.switchMultilevelGet().format()
@@ -449,7 +450,7 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
             switch (cmd.keyAttributes) {
                 case 0:
                     // Press Once
-                    result += createEvent(push("physical",1,0))
+                    result += createEvent(push("physical",4))
                     result += createEvent([name: "switch", value: "on", type: "physical"])
 
                     if (singleTapToFullSpeed) {
@@ -463,12 +464,12 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
                     break
                 case 2:
                     // Hold
-                    result += createEvent(push("physical",1,2))
+                    result += createEvent(push("physical",5))
                     result += createEvent([name: "switch", value: "on", type: "physical"])
                     break
                 case 3:
                     // 2 Times
-                    result += createEvent(push("physical",1,3))
+                    result += createEvent(push("physical",1))
                     if (doubleTapToFullSpeed) {
                         result += setLevel(99)
                         result += response("delay 5000")
@@ -477,15 +478,15 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
                     break
                 case 4:
                     // 3 times
-                    result += createEvent(push("physical",1,4))
+                    result += createEvent(push("physical",3))
                     break
                 case 5:
                     // 4 times
-                    result += createEvent(push("physical",1,5))
+                    result += createEvent(push("physical",9))
                     break
                 case 6:
                     // 5 times
-                    result += createEvent(push("physical",1,6))
+                    result += createEvent(push("physical",11))
                     break
                 default:
                     log.debug("unexpected up press keyAttribute: $cmd.keyAttributes")
@@ -497,7 +498,7 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
             switch (cmd.keyAttributes) {
                 case 0:
                     // Press Once
-                    result += createEvent(push("physical",2,0))
+                    result += createEvent(push("physical",8))
                     result += createEvent([name: "switch", value: "off", type: "physical"])
                     break
                 case 1:
@@ -505,12 +506,12 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
                     break
                 case 2:
                     // Hold
-                    result += createEvent(push("physical",2,2))
+                    result += createEvent(push("physical",6))
                     result += createEvent([name: "switch", value: "off", type: "physical"])
                     break
                 case 3:
                     // 2 Times
-                    createEvent(push("physical",2,3))
+                    createEvent(push("physical",2))
                     if (doubleTapDownToDim) {
                         result += setLevel(25)
                         result += response("delay 5000")
@@ -519,15 +520,15 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
                     break
                 case 4:
                     // 3 Times
-                    result += createEvent(push("physical",2,4))
+                    result += createEvent(push("physical",4))
                     break
                 case 5:
                     // 4 Times
-                    result += createEvent(push("physical",2,5))
+                    result += createEvent(push("physical",10))
                     break
                 case 6:
                     // 5 Times
-                    result += createEvent(push("physical",2,6))
+                    result += createEvent(push("physical",12))
                     break
                 default:
                     log.debug("unexpected down press keyAttribute: $cmd.keyAttributes")
@@ -542,100 +543,86 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
     return result
 }
 
-def push(upDown,btnNum)
+def push(btnNum)
 {
-   log.debug "Button pushed $upDown , $btnNum"
-   push("Digital",upDown,btnNum)
+   log.debug "Button pushed $btnNum"
+   push("Digital",btnNum)
 }
 
 // Valid button numbers are 10-16 and 20-26 first number 1 indicates up and 2 indicates down. Second number 0 = pushed once
 
 
-def push(String buttonType,upDown, btnNum) {
+def push(String buttonType, btnNum) {
 	
 	def statValue = ""
 	
-	switch(upDown){
+	switch(btnNum){
 
-		case 1:
-		//up
 		
-			switch(btnNum)
-			{
-				case 0:
-						statValue ="Tap ▲"
-						break
 				case 1:
-						statValue = "Tap ▲"
-						break
-				case 2:
-				//Hold 
-						statValue = "Hold ▲"
-						break
-				case 3:
 				 // 2 Times
 						statValue = "Tap ▲▲"
 						break
-				case 4:
-				// 3 times
-						statValue = "Tap ▲▲▲"
-						break
-				case 5:
-				// 4 times
-						statValue = "Tap ▲▲▲▲"
-						break
-				case 6: 
-				// 5 times
-						statValue = "Tap ▲▲▲▲▲"
-						break
-				default:
-				// unexpected case
-					log.debug("unexpected button number for up: $upDown, $btnNum")
-
-							  }
-			break
-		case 2:
-		//down
-						  
-			switch(btnNum)
-			{
-				case 0:
-						statValue ="Tap ▼"
-						break
-				case 1:
-						statValue = "Tap ▼"
-						break
+		
 				case 2:
-				//Hold 
-						statValue = "Hold ▼"
-						break
-				case 3:
 				 // 2 Times
 						statValue = "Tap ▼▼"
+						break
+				case 3:
+				// 3 times
+						statValue = "Tap ▲▲▲"
 						break
 				case 4:
 				// 3 times
 						statValue = "Tap ▼▼▼"
 						break
+		
 				case 5:
+				//Hold 
+						statValue = "Hold ▲"
+						break
+		
+				case 6:
+				//Hold 
+						statValue = "Hold ▼"
+						break
+		
+				case 7:
+						statValue ="Tap ▲"
+						break
+		
+				case 8:
+						statValue ="Tap ▼"
+						break		
+				
+				case 9:
+				// 4 times
+						statValue = "Tap ▲▲▲▲"
+						break
+				case 10:
 				// 4 times
 						statValue = "Tap ▼▼▼▼"
 						break
-				case 6: 
+			
+				case 11: 
+				// 5 times
+						statValue = "Tap ▲▲▲▲▲"
+						break
+
+				case 12: 
 				// 5 times
 						statValue = "Tap ▼▼▼▼▼ "
 						break
+		
 				default:
 				// unexpected case
-					log.debug("unexpected button number for up: $upDown, $btnNum")
-							  }
-		break
-		default:
-            // unexpected case
-				log.debug("unexpected button number: $upDown, $btnNum")
-	
-	}
-    sendEvent(name: "pushed", value: btnNum,data: [buttonNumber: btnNum], descriptionText: "$device.displayName button $upDown , $btnNum was pushed",  type: "$buttonType", isStateChange: true)
+					log.debug("unexpected button number: $btnNum")
+				break
+			 }
+		
+
+		
+    sendEvent(name: "pushed", value: btnNum,data: [buttonNumber: btnNum], descriptionText: "$device.displayName button $btnNum was pushed",  type: "$buttonType", isStateChange: true)
 	sendEvent(name: "btnStat", value: statValue, isStateChange: true)
 }
 
