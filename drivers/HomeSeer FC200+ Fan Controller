@@ -450,7 +450,7 @@ def zwaveEvent(hubitat.zwave.commands.centralscenev1.CentralSceneNotification cm
             switch (cmd.keyAttributes) {
                 case 0:
                     // Press Once
-                    result += createEvent(push("physical",4))
+                    result += createEvent(push("physical",7))
                     result += createEvent([name: "switch", value: "on", type: "physical"])
 
                     if (singleTapToFullSpeed) {
