@@ -19,8 +19,9 @@
  *	Date: 12/2017
  *
  *	Changelog:
- *       1.1      30-Mar-2019 Fixed on/off calls to work 
- *       1.0      29-Mar-2019 Initial Port to Hubitat by @PluckyHD
+ *  1.2       30-Mar-2019 fixed switchlevel to corret compatibility
+ *  1.1       30-Mar-2019 Fixed on/off calls to work 
+ *  1.0       29-Mar-2019 Initial Port to Hubitat by @PluckyHD
  *	1.0.dd.9  13-Feb-2019 Added dummy setLevel command with duration for compatibility with HA Bridge, others? (darwin@darwinsden.com)
  *	1.0.dd.8  28-Jul-2018 Additional protection against floating point default preference values
  *	1.0.dd.6  27-Jul-2018 Added call to set led flash rate and added protection against floating point default preference values
@@ -53,7 +54,7 @@
  
 metadata {
 	definition (name: "HomeSeer WD200+ Dimmer", namespace: "pluckyhd", author: "@pluckyhd") {
-		capability "Switch Level"
+		capability "SwitchLevel"
 		capability "Actuator"
 		capability "Indicator"
 		capability "Switch"
