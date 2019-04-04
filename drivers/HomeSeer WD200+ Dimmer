@@ -19,6 +19,7 @@
  *	Date: 12/2017
  *
  *	Changelog:
+ *  1.3       Fixed color to set right in prefs
  *  1.2       30-Mar-2019 fixed switchlevel to corret compatibility
  *  1.1       30-Mar-2019 Fixed on/off calls to work 
  *  1.0       29-Mar-2019 Initial Port to Hubitat by @PluckyHD
@@ -661,7 +662,7 @@ def configure() {
  
    sendEvent(name: "numberOfButtons", value: 12, displayed: false)
    def commands = []
-   commands << setDimRatePrefs()
+   setDimRatePrefs()
    commands << zwave.switchMultilevelV1.switchMultilevelGet().format()
    commands << zwave.manufacturerSpecificV1.manufacturerSpecificGet().format()
    commands << zwave.versionV1.versionGet().format()
